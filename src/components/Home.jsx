@@ -17,7 +17,19 @@ function App() {
   const searchRecipes = async () => {
     setLoader(true)
     try {
-      if (!query.trim()) return alert("Please enter a search term!");
+      if (!query.trim()) {
+        return toast.warning("Please enter a search term !", {
+          position: "top-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          transition: Bounce,
+        });
+      }
       const res = await fetch(
         `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=100&apiKey=${API_KEY}`
       );
@@ -58,7 +70,17 @@ function App() {
       });
     } catch (err) {
       console.error("Error saving recipe:", err);
-      alert("Failed to save recipe");
+      toast.warning("Failed to save recipe", {
+          position: "top-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          transition: Bounce,
+        });
     }
   };
 
@@ -114,9 +136,10 @@ function App() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            searchRecipes();
-          }}}
+              if (e.key === 'Enter') {
+                searchRecipes();
+              }
+            }}
           />
           <div className="flex  gap-1.5 items-center">
             <button className="btn btn-primary" onClick={searchRecipes}>
@@ -137,22 +160,22 @@ function App() {
           ) : info.totalResults === 0 ? <div>Sorry but this recipe not added yet we can add it later</div> : (recipes.map((recipe) => (
             <div key={recipe.id} className="card bg-[rgba(255,255,255,0.2)] border w-[250px] p-3 rounded shadow flex flex-col justify-between">
               <div>
-              <img src={recipe.image} alt={recipe.title} className="rounded mb-2" />
-              <h5 className="mt-2 text-lg font-semibold">{recipe.title}</h5>
+                <img src={recipe.image} alt={recipe.title} className="rounded mb-2" />
+                <h5 className="mt-2 text-lg font-semibold">{recipe.title}</h5>
               </div>
               <div>
-              <button
-                className="btn btn-success mt-2 mr-2"
-                onClick={() => saveRecipe(recipe)}
-              >
-                Save Recipe
-              </button>
-              <button
-                onClick={() => { getRecipeDetails(recipe.id) }}
-                className="btn btn-secondary mt-2"
-              >
-                How to Make It
-              </button>
+                <button
+                  className="btn btn-success mt-2 mr-2"
+                  onClick={() => saveRecipe(recipe)}
+                >
+                  Save Recipe
+                </button>
+                <button
+                  onClick={() => { getRecipeDetails(recipe.id) }}
+                  className="btn btn-secondary mt-2"
+                >
+                  How to Make It
+                </button>
               </div>
             </div>
           )))

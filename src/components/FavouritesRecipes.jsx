@@ -22,7 +22,17 @@ const FavouritesRecipes = () => {
             setData(apiData);
         } catch (err) {
             console.error("Error getting favourites:", err);
-            alert("Failed to get recipes");
+            toast.warning("Failed to get recipes", {
+                position: "top-right",
+                autoClose: 1000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            });
         }
     };
 
@@ -114,7 +124,17 @@ const FavouritesRecipes = () => {
                                         setPendingDeleteId(null);
                                     } catch (err) {
                                         console.error("Error deleting recipe:", err);
-                                        alert("Failed to delete recipe");
+                                        toast.warning("Failed to delete recipe", {
+                                            position: "top-right",
+                                            autoClose: 1000,
+                                            hideProgressBar: false,
+                                            closeOnClick: false,
+                                            pauseOnHover: true,
+                                            draggable: true,
+                                            progress: undefined,
+                                            theme: "dark",
+                                            transition: Bounce,
+                                        });
                                     }
                                 }
                             }}
