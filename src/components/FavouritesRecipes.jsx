@@ -7,9 +7,21 @@ const API_KEY = "0b27a94bdf5c4630bde61405eb6a0a9d";
 
 const FavouritesRecipes = () => {
     const [data, setData] = useState([]);
+    const [recipes, setRecipes] = useState([])
     const [recipeInfo, setRecipeInfo] = useState()
     const [pendingDeleteId, setPendingDeleteId] = useState(null);
 
+    const limit = 10;
+    const [currentPage, setCurrentPage] = useState(1)
+    const totalPages = Math.ceil((data.length / limit))
+    useEffect(() => {
+        setRecipes(data.slice((currentPage - 1) * limit, limit * currentPage))
+    }, [currentPage])
+
+    useEffect(() => {
+        setRecipes(data.slice(currentPage, limit))
+    }, [data])
+    
     const scroll = useRef(null)
     const hidden = useRef(null)
     const fetchFavourites = async () => {
@@ -152,9 +164,9 @@ const FavouritesRecipes = () => {
                 {data.length === 0 ? (
                     <p className="text-center">No favourite recipes found.</p>
                 ) : (
-                    <div className="h-[84dvh] w-[100vw]   overflow-y-auto">
+                    <div className="h-[78.5dvh] w-[100vw]   overflow-y-auto">
                         <div className="flex flex-wraflex flex-wrap gap-4 justify-center mx-auto">
-                            {data.map((recipe) => (
+                            {recipes.map((recipe) => (
                                 <div key={recipe._id} className="card box-border border w-[250px] p-3 rounded-xl shadow bg-[rgba(255,255,255,0.2)] text-white flex flex-col justify-between">
                                     <div>
                                         <img src={recipe.image} alt={recipe.title} className="rounded-xl mb-2" />
@@ -206,7 +218,20 @@ const FavouritesRecipes = () => {
                         )}
                     </div>
                 )}
-                <div className="w-full h-[65px] flex justify-center items-center"><HomeButton /></div>
+                <div className="text-center pt-2">
+                    {currentPage > 1 ? (
+                        <button onClick={() => setCurrentPage(currentPage - 1)}>Prev</button>
+                    ) : (
+                        <button disabled className="opacity-80">Prev</button>
+                    )}
+                    <span className="mx-2">Page {currentPage} of {totalPages}</span>
+                    {currentPage < totalPages ? (
+                        <button onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
+                    ) : (
+                        <button disabled className="opacity-80">Next</button>
+                    )}
+                <div className="w-full pt-2 flex justify-center items-center"><HomeButton /></div>
+                </div>
             </div>
         </>
     );

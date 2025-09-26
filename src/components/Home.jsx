@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef ,useEffect } from "react";
 import Button from "./Button"
 import Button2 from "./Button2"
 import { Link } from "react-router-dom";
@@ -8,12 +8,23 @@ import { Bounce } from 'react-toastify';
 const API_KEY = "0b27a94bdf5c4630bde61405eb6a0a9d";
 
 function App() {
+  const limit = 100;
   const scroll = useRef(null);
   const [query, setQuery] = useState("");
   const [recipes, setRecipes] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [info, setInfo] = useState([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const page = Math.ceil((info.totalResults / 100))
+  const totalPages = isNaN(page) ? 1 : page;
+  const offset = (currentPage - 1) * limit;
   const [loader, setLoader] = useState(false)
+  
+  useEffect(() => {
+    if(currentPage === 1) return;
+    searchRecipes();
+  }, [currentPage])
+  
   const searchRecipes = async () => {
     setLoader(true)
     try {
@@ -31,7 +42,7 @@ function App() {
         });
       }
       const res = await fetch(
-        `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=100&apiKey=${API_KEY}`
+        `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=100&offset=${offset}&apiKey=${API_KEY}`
       );
 
       const data = await res.json();
@@ -71,16 +82,16 @@ function App() {
     } catch (err) {
       console.error("Error saving recipe:", err);
       toast.warning("Failed to save recipe", {
-          position: "top-right",
-          autoClose: 1000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
-          transition: Bounce,
-        });
+        position: "top-right",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Bounce,
+      });
     }
   };
 
@@ -151,7 +162,7 @@ function App() {
 
         </div>
       </div>
-      <div className=" h-[calc(100dvh-160px)] overflow-y-auto">
+      <div className=" h-[calc(100dvh-203px)] pb-2 overflow-y-auto">
         <div className="cards-container w-[90vw]  flex flex-wrap gap-4 justify-center mx-auto">
           {loader ? <div>
             <div className="loader h-[70px] w-[70px] mt-30"></div>
@@ -211,6 +222,20 @@ function App() {
             </ul>
           </div>
         )}
+      </div>
+      <div className="text-center">
+        {currentPage > 1 ? (
+          <button onClick={() => setCurrentPage(currentPage - 1)}>Prev</button>
+        ) : (
+          <button disabled className="opacity-80">Prev</button>
+        )}
+        <span className="mx-2">Page {currentPage} of {totalPages}</span>
+        {currentPage < totalPages ? (
+          <button onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
+        ) : (
+          <button disabled className="opacity-80">Next</button>
+        )}
+
       </div>
     </div>
   );
