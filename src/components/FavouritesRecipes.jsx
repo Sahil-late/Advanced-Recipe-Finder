@@ -19,9 +19,21 @@ const FavouritesRecipes = () => {
     }, [currentPage])
 
     useEffect(() => {
-        setRecipes(data.slice(currentPage, limit))
+        setRecipes(data.slice(currentPage - 1, limit))
     }, [data])
-    
+
+    const containerRef = useRef(null);
+    const pageRefs = useRef([]);
+
+    useEffect(() => {
+        if (pageRefs.current[currentPage - 1]) {
+            pageRefs.current[currentPage - 1].scrollIntoView({
+                behavior: 'smooth',
+                inline: 'center',
+            });
+        }
+    }, [currentPage]);
+
     const scroll = useRef(null)
     const hidden = useRef(null)
     const fetchFavourites = async () => {
@@ -224,13 +236,36 @@ const FavouritesRecipes = () => {
                     ) : (
                         <button disabled className="opacity-80">Prev</button>
                     )}
-                    <span className="mx-2">Page {currentPage} of {totalPages}</span>
+                    {/* <span className="mx-2">Page {currentPage} of {totalPages}</span> */}
+                    <div
+                        ref={containerRef}
+                        className="inline-flex w-[150px] overflow-x-auto whitespace-nowrap no-scrollbar px-2"
+                    >
+                        <div className="inline-flex gap-4">
+                            {Array.from({ length: totalPages }).map((e, i) => {
+                                const pageNum = i + 1;
+                                const isActive = pageNum === currentPage;
+                                return (
+                                    <div
+                                        ref={(el) => (pageRefs.current[i] = el)}
+                                        key={i}
+                                        onClick={() => setCurrentPage(pageNum)}
+                                        className={`flex justify-center items-center cursor-pointer w-8 h-8 rounded-2xl ${isActive ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'
+                                            }`}
+                                    >
+                                        {pageNum}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
                     {currentPage < totalPages ? (
                         <button onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
                     ) : (
                         <button disabled className="opacity-80">Next</button>
                     )}
-                <div className="w-full pt-2 flex justify-center items-center"><HomeButton /></div>
+                    <div className="w-full pt-2 flex justify-center items-center"><HomeButton /></div>
                 </div>
             </div>
         </>

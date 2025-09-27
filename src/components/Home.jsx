@@ -19,6 +19,18 @@ function App() {
   const totalPages = isNaN(page) ? 1 : page;
   const offset = (currentPage - 1) * limit;
   const [loader, setLoader] = useState(false)
+  const containerRef = useRef(null);
+      const pageRefs = useRef([]);
+  console.log(pageRefs);
+  
+      useEffect(() => {
+          if (pageRefs.current[currentPage - 1]) {
+              pageRefs.current[currentPage - 1].scrollIntoView({
+                  behavior: 'smooth',
+                  inline: 'center',
+              });
+          }
+      }, [currentPage]);
   
   useEffect(() => {
     if(currentPage === 1) return;
@@ -162,7 +174,7 @@ function App() {
 
         </div>
       </div>
-      <div className=" h-[calc(100dvh-203px)] pb-2 overflow-y-auto">
+      <div className=" h-[calc(100dvh-210px)] pb-2 overflow-y-auto">
         <div className="cards-container w-[90vw]  flex flex-wrap gap-4 justify-center mx-auto">
           {loader ? <div>
             <div className="loader h-[70px] w-[70px] mt-30"></div>
@@ -229,7 +241,29 @@ function App() {
         ) : (
           <button disabled className="opacity-80">Prev</button>
         )}
-        <span className="mx-2">Page {currentPage} of {totalPages}</span>
+        {/* <span className="mx-2">Page {currentPage} of {totalPages}</span> */}
+        <div
+                        ref={containerRef}
+                        className="inline-flex w-[150px] overflow-x-auto whitespace-nowrap no-scrollbar px-2"
+                    >
+                        <div className="inline-flex gap-4">
+                            {Array.from({ length: totalPages }).map((e, i) => {
+                                const pageNum = i + 1;
+                                const isActive = pageNum === currentPage;
+                                return (
+                                    <div
+                                        ref={(el) => (pageRefs.current[i] = el)}
+                                        key={i}
+                                        onClick={() => setCurrentPage(pageNum)}
+                                        className={`flex justify-center items-center cursor-pointer w-8 h-8 rounded-2xl ${isActive ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'
+                                            }`}
+                                    >
+                                        {pageNum}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
         {currentPage < totalPages ? (
           <button onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
         ) : (
