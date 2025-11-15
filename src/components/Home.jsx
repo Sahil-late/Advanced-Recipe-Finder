@@ -1,11 +1,14 @@
-import React, { useState, useRef ,useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Button from "./Button"
 import Button2 from "./Button2"
 import { Link } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Bounce } from 'react-toastify';
-const API_KEY = "0b27a94bdf5c4630bde61405eb6a0a9d";
+import axios from 'axios'
+
+
+
 
 function App() {
   const limit = 100;
@@ -20,26 +23,24 @@ function App() {
   const offset = (currentPage - 1) * limit;
   const [loader, setLoader] = useState(false)
   const containerRef = useRef(null);
-      const pageRefs = useRef([]);
-  console.log(pageRefs);
-  
-      useEffect(() => {
-          if (pageRefs.current[currentPage - 1]) {
-              pageRefs.current[currentPage - 1].scrollIntoView({
-                  behavior: 'smooth',
-                  inline: 'center',
-              });
-          }
-      }, [currentPage]);
-  
+  const pageRefs = useRef([]);
+
   useEffect(() => {
-    if(currentPage === 1) return;
+    if (pageRefs.current[currentPage - 1]) {
+      pageRefs.current[currentPage - 1].scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+      });
+    }
+  }, [currentPage]);
+
+  useEffect(() => {
+    if (currentPage === 1) return;
     searchRecipes();
   }, [currentPage])
-  
+
   const searchRecipes = async () => {
     setLoader(true)
-    try {
       if (!query.trim()) {
         return toast.warning("Please enter a search term !", {
           position: "top-right",
@@ -52,20 +53,13 @@ function App() {
           theme: "dark",
           transition: Bounce,
         });
-      }
-      const res = await fetch(
-        `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=100&offset=${offset}&apiKey=${API_KEY}`
-      );
-
-      const data = await res.json();
-      setInfo(data)
-      if (!data.message) setRecipes(data.results);
-      setSelectedRecipe(null); // reset selected recipe when new search happens
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoader(false)
-    }
+       }
+       axios.post('http://localhost:3000/recipes/home',{query:query,offset:offset})
+       .then((res) =>{    
+        setInfo(res.data.extract)      
+        setRecipes([...res.data.extract.results])
+        setLoader(false)
+      })
   };
 
   const saveRecipe = async (recipe) => {
@@ -109,10 +103,8 @@ function App() {
 
   const getRecipeDetails = async (id) => {
     try {
-      const res = await fetch(
-        `https://api.spoonacular.com/recipes/${id}/information?includeNutrition=false&apiKey=${API_KEY}`
-      );
-      const data = await res.json();
+      const res = await axios.post('http://localhost:3000/recipes/recipe_info',id)
+      const data = res.data.extract
       setSelectedRecipe(data);
       toast('scroll down to see the recipe 👇', {
         position: "top-right",
@@ -241,29 +233,29 @@ function App() {
         ) : (
           <button disabled className="opacity-80">Prev</button>
         )}
-        {/* <span className="mx-2">Page {currentPage} of {totalPages}</span> */}
+
         <div
-                        ref={containerRef}
-                        className="inline-flex w-[150px] overflow-x-auto whitespace-nowrap no-scrollbar px-2"
-                    >
-                        <div className="inline-flex gap-4">
-                            {Array.from({ length: totalPages }).map((e, i) => {
-                                const pageNum = i + 1;
-                                const isActive = pageNum === currentPage;
-                                return (
-                                    <div
-                                        ref={(el) => (pageRefs.current[i] = el)}
-                                        key={i}
-                                        onClick={() => setCurrentPage(pageNum)}
-                                        className={`flex justify-center items-center cursor-pointer w-8 h-8 rounded-2xl ${isActive ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'
-                                            }`}
-                                    >
-                                        {pageNum}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
+          ref={containerRef}
+          className="inline-flex w-[150px] overflow-x-auto whitespace-nowrap no-scrollbar px-2"
+        >
+          <div className="inline-flex gap-4">
+            {Array.from({ length: totalPages }).map((e, i) => {
+              const pageNum = i + 1;
+              const isActive = pageNum === currentPage;
+              return (
+                <div
+                  ref={(el) => (pageRefs.current[i] = el)}
+                  key={i}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`flex justify-center items-center cursor-pointer w-8 h-8 rounded-2xl ${isActive ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'
+                    }`}
+                >
+                  {pageNum}
+                </div>
+              );
+            })}
+          </div>
+        </div>
         {currentPage < totalPages ? (
           <button onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
         ) : (

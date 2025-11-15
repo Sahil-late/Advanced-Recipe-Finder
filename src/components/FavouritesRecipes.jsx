@@ -3,14 +3,13 @@ import HomeButton from "./HomeButton";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Bounce } from 'react-toastify';
-const API_KEY = "0b27a94bdf5c4630bde61405eb6a0a9d";
+import axios from 'axios'
 
 const FavouritesRecipes = () => {
     const [data, setData] = useState([]);
     const [recipes, setRecipes] = useState([])
     const [recipeInfo, setRecipeInfo] = useState()
     const [pendingDeleteId, setPendingDeleteId] = useState(null);
-
     const limit = 10;
     const [currentPage, setCurrentPage] = useState(1)
     const totalPages = Math.ceil((data.length / limit))
@@ -60,31 +59,29 @@ const FavouritesRecipes = () => {
         }
     };
 
-    const getRecipeDetails = async (id) => {
-        try {
-            const res = await fetch(
-                `https://api.spoonacular.com/recipes/${id}/information?includeNutrition=false&apiKey=${API_KEY}`
-            );
-            const recipeData = await res.json();
-            setRecipeInfo(recipeData);
-            toast('scroll down to see the recipe 👇', {
-                position: "top-right",
-                autoClose: 1000,
-                hideProgressBar: true,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-                transition: Bounce,
-            });
-            setTimeout(() => {
-                scroll.current.scrollIntoView({ behavior: "smooth" });
-            }, 200);
-        } catch (err) {
-            console.error("Failed to fetch recipe details:", err);
-        }
-    };
+   const getRecipeDetails = async (id) => {
+    try {
+      const res = await axios.post('http://localhost:3000/recipes/recipe_info',id)
+      const data = res.data.extract
+      setRecipeInfo(data);
+      toast('scroll down to see the recipe 👇', {
+        position: "top-right",
+        autoClose: 1000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Bounce,
+      });
+      setTimeout(() => {
+        scroll.current.scrollIntoView({ behavior: "smooth" });
+      }, 200);
+    } catch (err) {
+      console.error("Failed to fetch recipe details:", err);
+    }
+  };
 
     const removeRecipe = (id) => {
         setPendingDeleteId(id);
