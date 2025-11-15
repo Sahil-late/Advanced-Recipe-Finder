@@ -6,6 +6,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Bounce } from 'react-toastify';
 import axios from 'axios'
+import API from '../config'
 
 const RecipeRequest = () => {
   const input = useRef(null)
@@ -24,7 +25,7 @@ const RecipeRequest = () => {
       });
     }
     else {
-      axios.post("http://localhost:3000/recipes/request", { name: input.current.value })
+      axios.post(`${API}/recipes/request`, { name: input.current.value })
         .then((res) => {
           toast.success(<div className='capitalize'>{res.data.message}</div>, {
             position: "top-right",

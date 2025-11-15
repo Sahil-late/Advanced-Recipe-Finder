@@ -4,6 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Bounce } from 'react-toastify';
 import axios from 'axios'
+import API from '../config'
 
 const FavouritesRecipes = () => {
     const [data, setData] = useState([]);
@@ -37,7 +38,7 @@ const FavouritesRecipes = () => {
     const hidden = useRef(null)
     const fetchFavourites = async () => {
         try {
-            const res = await fetch("http://localhost:3000/favourite/recipes", {
+            const res = await fetch(`${API}/favourite/recipes`, {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
             });
@@ -61,7 +62,7 @@ const FavouritesRecipes = () => {
 
    const getRecipeDetails = async (id) => {
     try {
-      const res = await axios.post('http://localhost:3000/recipes/recipe_info',id)
+      const res = await axios.post(`${API}/recipes/recipe_info`,id)
       const data = res.data.extract
       setRecipeInfo(data);
       toast('scroll down to see the recipe 👇', {

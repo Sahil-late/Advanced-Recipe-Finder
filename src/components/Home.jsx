@@ -6,6 +6,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Bounce } from 'react-toastify';
 import axios from 'axios'
+import API from '../config'
 
 
 
@@ -54,7 +55,7 @@ function App() {
           transition: Bounce,
         });
        }
-       axios.post('http://localhost:3000/recipes/home',{query:query,offset:offset})
+       axios.post(`${API}/recipes/home`,{query:query,offset:offset})
        .then((res) =>{    
         setInfo(res.data.extract)      
         setRecipes([...res.data.extract.results])
@@ -64,7 +65,7 @@ function App() {
 
   const saveRecipe = async (recipe) => {
     try {
-      const res = await fetch("http://localhost:3000/recipes/save", {
+      const res = await fetch(`${API}/recipes/save`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -103,7 +104,7 @@ function App() {
 
   const getRecipeDetails = async (id) => {
     try {
-      const res = await axios.post('http://localhost:3000/recipes/recipe_info',id)
+      const res = await axios.post(`${API}/recipes/recipe_info`,id)
       const data = res.data.extract
       setSelectedRecipe(data);
       toast('scroll down to see the recipe 👇', {

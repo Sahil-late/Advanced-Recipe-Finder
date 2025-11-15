@@ -2,12 +2,12 @@ import React from 'react'
 import { useEffect , useState } from 'react'
 import HomeButton from './HomeButton'
 import  Axios  from 'axios'
-
+import API from '../config'
 const UserRequestedRecipes = () => {
   const [data, setData] = useState([]);
 
   const recipes = async () => {
-    Axios.get('http://localhost:3000/access/requested')
+    Axios.get(`${API}/access/requested`)
       .then((Recipes) => {
         console.log(Recipes.data);
         setData(Recipes.data);
