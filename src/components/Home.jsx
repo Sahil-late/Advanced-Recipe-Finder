@@ -56,8 +56,10 @@ function App() {
         });
        }
        axios.post(`${API}/recipes/home`,{query:query,offset:offset})
-       .then((res) =>{    
-        setInfo(res.data.extract)      
+       .then((res) =>{  
+        const data = res.data.extract
+        setInfo(data)    
+        alert(data)
         setRecipes([...res.data.extract.results])
         setLoader(false)
       })
