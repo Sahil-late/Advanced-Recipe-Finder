@@ -59,7 +59,7 @@ function App() {
        .then((res) =>{  
         const data = res.data.extract
         setInfo(data)    
-        alert(data)
+        alert(JSON.stringify(data))
         setRecipes([...res.data.extract.results])
         setLoader(false)
       })
