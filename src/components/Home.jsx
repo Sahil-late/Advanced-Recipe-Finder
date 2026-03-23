@@ -7,11 +7,12 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Bounce } from 'react-toastify';
 import axios from 'axios'
 import API from '../config'
-
-
+import { PiShareDuotone } from "react-icons/pi";
+import html2canvas from "html2canvas";
 
 
 function App() {
+
   const limit = 100;
   const scroll = useRef(null);
   const [query, setQuery] = useState("");
@@ -25,6 +26,8 @@ function App() {
   const [loader, setLoader] = useState(false)
   const containerRef = useRef(null);
   const pageRefs = useRef([]);
+  
+
 
   useEffect(() => {
     if (pageRefs.current[currentPage - 1]) {
@@ -39,6 +42,40 @@ function App() {
     if (currentPage === 1) return;
     searchRecipes();
   }, [currentPage])
+
+  const handleShare = async () => {
+    if (!scroll.current) return;
+
+    try {
+      await document.fonts.ready;
+      const canvas = await html2canvas(scroll.current, {
+        backgroundColor: "#fff",
+        scale: 2,
+        ignoreElements:(el) =>
+          el.hasAttribute("data-html2canvas-ignore"),
+      });
+
+
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.95));
+      const file = new File([blob], `${selectedRecipe.title}.jpeg`, {
+        type: "image/jpeg",
+      });
+
+      
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          title: selectedRecipe.title,
+          text: `Check out this recipe: ${selectedRecipe.title}`,
+          files: [file],
+        });
+      } else {
+        alert("Sharing not supported on this device!");
+      }
+    } catch (err) {
+      console.error("Sharing failed", err);
+    }
+  };
+
 
   const searchRecipes = async () => {
     setLoader(true)
@@ -56,12 +93,13 @@ function App() {
         });
        }
        axios.post(`${API}/recipes/home`,{query:query,offset:offset})
-       .then((res) =>{  
-        const data = res.data.extract
-        setInfo(data)    
-        alert(JSON.stringify(data.message))
+       .then((res) =>{    
+        setInfo(res.data.extract)      
         setRecipes([...res.data.extract.results])
         setLoader(false)
+      })
+      .catch((er) => {
+        console.log(er);
       })
   };
 
@@ -106,7 +144,7 @@ function App() {
 
   const getRecipeDetails = async (id) => {
     try {
-      const res = await axios.post(`${API}/recipes/recipe_info`,id)
+      const res = await axios.post(`${API}/recipes/recipe_info`, id)
       const data = res.data.extract
       setSelectedRecipe(data);
       toast('scroll down to see the recipe 👇', {
@@ -201,13 +239,16 @@ function App() {
         </div>
 
         {selectedRecipe && (
-          <div ref={scroll} className="mt-8 p-4 border rounded shadow bg-white max-w-3xl mx-auto text-black">
+          <div ref={scroll} className="mt-8 p-4 border rounded shadow bg-white max-w-3xl mx-auto text-black relative">
             <h2 className="text-2xl font-bold mb-2">{selectedRecipe.title}</h2>
-            <img
-              src={selectedRecipe.image}
-              alt={selectedRecipe.title}
-              className="w-full max-w-md mb-4 rounded"
-            />
+              <img
+                src={selectedRecipe.image}
+                alt={selectedRecipe.title}
+                className="imgs w-full max-w-md mb-4 rounded"
+                data-html2canvas-ignore
+                onError={(e)=> console.log(e)
+                }
+              />
             <p><strong>Ready in:</strong> {selectedRecipe.readyInMinutes} minutes</p>
             <p><strong>Servings:</strong> {selectedRecipe.servings}</p>
 
@@ -227,6 +268,14 @@ function App() {
                 <li key={ing.id}>{ing.original}</li>
               ))}
             </ul>
+            <button
+              onClick={handleShare}
+              className="share absolute top-2 right-5"
+              data-html2canvas-ignore
+            >
+              <PiShareDuotone className="text-amber-300" />
+            </button>
+
           </div>
         )}
       </div>
